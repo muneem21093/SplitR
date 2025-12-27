@@ -1,4 +1,4 @@
-package tr.kontas.splitr.consumer;
+package tr.kontas.splitr.kafka.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.*;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.annotation.EnableKafka;
+import org.springframework.kafka.annotation.EnableKafka;import tr.kontas.splitr.consumer.IdempotencyStore;import tr.kontas.splitr.consumer.LruStore;import tr.kontas.splitr.consumer.QueryDispatcher;import tr.kontas.splitr.consumer.QueryHandler;
 
 import java.util.List;
 

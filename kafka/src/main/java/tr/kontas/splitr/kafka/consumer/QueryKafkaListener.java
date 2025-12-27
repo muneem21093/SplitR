@@ -1,9 +1,9 @@
-package tr.kontas.splitr.consumer;
+package tr.kontas.splitr.kafka.consumer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Component;
+import tr.kontas.splitr.consumer.QueryDispatcher;
 import tr.kontas.splitr.dto.QueryRequest;
 
 @RequiredArgsConstructor

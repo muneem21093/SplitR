@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>tr.kontas</groupId>
-    <artifactId>splitr</artifactId>
+    <groupId>tr.kontas.splitr</groupId>
+    <artifactId>splitr-kafka</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
@@ -54,6 +54,12 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.20.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>tr.kontas</groupId>
+            <artifactId>splitr-core</artifactId>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
 

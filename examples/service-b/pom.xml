@@ -44,8 +44,13 @@
         </dependency>
 
         <dependency>
-            <groupId>tr.kontas</groupId>
-            <artifactId>splitr</artifactId>
+            <groupId>tr.kontas.splitr</groupId>
+            <artifactId>splitr-core</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>tr.kontas.splitr</groupId>
+            <artifactId>splitr-kafka</artifactId>
             <version>1.0.0</version>
         </dependency>
 
