@@ -87,7 +87,7 @@ splitr:
   consumer:
     enabled: true
   idempotency:
-    max-size: 1000
+    max-size: 1000 # record size
 
 ```
 
@@ -128,7 +128,7 @@ public class OrderController {
 
     @GetMapping("/order/{id}")
     public String get(@PathVariable String id) {
-        return queryBus.querySync(new OrderQuery(id), String.class);
+        return queryBus.publishSync(new OrderQuery(id), String.class);
     }
 }
 
@@ -149,32 +149,57 @@ public class OrderController {
 
 ---
 
+Yol haritasını (Roadmap) hem görsel olarak daha profesyonel bir hale getirdim hem de **DLQ Jobs** kısmını tam istediğin "cron tabanlı yeniden deneme" (Retry Mechanism) detaylarıyla genişlettim.
+
+---
+
+Roadmap'i her madde için teknik derinlik ve stratejik notlar ekleyerek güncelledim. Özellikle **DLQ Jobs** ve **Idempotency** gibi kritik kısımları mimari gereksinimlerine göre detaylandırdım.
+
+---
+
 ## 📑 Roadmap & TODO's
 
 ### 🚀 High Priority (Core Engine)
 
 * [x] **Query Bus:** Distributed request-response pattern.
-* [ ] **Command Bus:** Asynchronous command dispatching.
-* [ ] **Event Bus:** Pub/Sub broadcast support.
-* [ ] **DLQ (Dead Letter Queue):** Automatic failure routing to `.DLT` topics.
-* [ ] **Saga Support:** Orchestration for distributed transactions.
+* [x] **Command Bus:** Asynchronous command dispatching.
+* [ ] **Event Bus:** Pub/Sub broadcast support for domain events.
+  * *Note:* Fan-out pattern implementation. Multiple listeners for a single event with independent consumer groups.
+* [ ] **Dead Letter Queue (DLQ):** Automatic failure routing to `.DLT` topics for commands and events.
+  * *Note:* Catch-all error handling in listeners to prevent infinite retry loops and partition blocking.
+* [ ] **DLQ Retry Jobs:** Scheduled background jobs to consume from DLQ and re-publish to main topics.
+  * *Customization:* User-defined **Cron Expressions** for retry intervals.
+  * *Logic:* Smart back-off strategy; use `x-retry-count` headers to prevent "poison pill" messages from circulating forever.
+* [ ] **Saga Support:** Orchestration-based distributed transaction management.
+  * *Note:* State machine implementation to manage compensations (undo operations) when a step in the flow fails.
 
 ### 🛡 Resilience & Security
 
-* [ ] **Circuit Breaker:** Resilience4j integration for callback failures.
-* [ ] **Payload Encryption:** AES encryption for Kafka records.
-* [ ] **Validation:** JSR-303 support for Query/Command DTOs.
+* [ ] **Idempotency Guard:** Distributed store to prevent duplicate processing.
+  * *Note:* Redis-backed check for `Message-ID` before execution. Essential for "at-least-once" delivery guarantees in Kafka.
+* [ ] **Circuit Breaker:** Resilience4j integration to protect the bus.
+  * *Note:* Automatically trip the circuit if the `callback-url` or target microservice is down, preventing resource exhaustion.
+* [ ] **Payload Encryption:** Optional AES encryption for sensitive Kafka record data.
+  * *Note:* Field-level or full-body encryption to ensure PII (Personally Identifiable Information) security at rest in Kafka brokers.
+* [ ] **Schema Validation:** JSR-303 (Hibernate Validator) support for incoming DTOs.
+  * *Note:* Fail-fast mechanism; validate the command/query payload before it ever touches the Kafka topic.
 
 ### 📊 Observability
 
-* [ ] **Distributed Tracing:** Micrometer/Zipkin integration for Correlation-IDs.
-* [ ] **Metrics:** Prometheus/Grafana dashboard for latency monitoring.
+* [ ] **Distributed Tracing:** Micrometer/Brave/Zipkin integration.
+  * *Note:* Propagation of `Span-ID` and `Trace-ID` across different services to visualize the entire request flow.
+* [ ] **Metrics & Dashboards:** Micrometer-based Prometheus metrics.
+  * *Note:* Real-time tracking of "Bus Throughput", "Average Response Latency", and "DLQ Error Rates".
+* [ ] **Audit Log:** Persistent storage for all dispatched messages.
+  * *Note:* A separate database or search index (Elasticsearch) to search historical commands and see who triggered what, when.
 
 ### 💾 Storage & Transports
 
-* [x] **Kafka Support:** Default transport layer.
-* [ ] **Redis Idempotency:** Distributed store for horizontal scaling.
-* [ ] **RabbitMQ Support:** Alternative AMQP transport.
+* [x] **Kafka Transport:** Primary high-throughput transport layer.
+* [ ] **RabbitMQ Transport:** AMQP-based alternative.
+  * *Note:* Support for environments where lightweight broker logic and complex routing (Exchange types) are preferred.
+* [ ] **Redis Sync Registry:** Distributed state for horizontal scaling.
+  * *Note:* Necessary when the `SyncRegistry` needs to be shared across multiple instances of the same service to handle response callbacks.
 
 ---
 
