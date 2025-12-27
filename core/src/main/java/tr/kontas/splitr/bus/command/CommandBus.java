@@ -1,4 +1,4 @@
-package tr.kontas.splitr.bus;
+package tr.kontas.splitr.bus.command;
 
 import java.util.concurrent.CompletableFuture;
 

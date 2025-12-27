@@ -1,2 +1,2 @@
-tr.kontas.splitr.kafka.bus.KafkaBusAutoConfig
-tr.kontas.splitr.kafka.consumer.KafkaConsumerAutoConfig
+tr.kontas.splitr.kafka.autoconfigure.KafkaBusAutoConfig
+tr.kontas.splitr.kafka.autoconfigure.KafkaConsumerAutoConfig

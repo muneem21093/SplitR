@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import tr.kontas.splitr.bus.CommandBus;
-import tr.kontas.splitr.bus.QueryBus;
+import tr.kontas.splitr.bus.command.CommandBus;
+import tr.kontas.splitr.bus.query.QueryBus;
 import tr.kontas.splitr.test.CreateOrderCommand;
 import tr.kontas.splitr.test.OrderQuery;
 

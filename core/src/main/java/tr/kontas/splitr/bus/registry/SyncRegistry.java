@@ -1,4 +1,4 @@
-package tr.kontas.splitr.bus;
+package tr.kontas.splitr.bus.registry;
 
 import tr.kontas.splitr.dto.CommandResponse;
 import tr.kontas.splitr.dto.QueryResponse;

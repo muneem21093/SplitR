@@ -1,6 +1,5 @@
-package tr.kontas.splitr.consumer;
+package tr.kontas.splitr.consumer.store;
 
-import tr.kontas.splitr.dto.QueryResponse;
 import tr.kontas.splitr.dto.base.BaseResponse;
 
 import java.util.*;

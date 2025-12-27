@@ -1,9 +1,11 @@
-package tr.kontas.splitr.consumer;
+package tr.kontas.splitr.consumer.dispatcher;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.client.RestTemplate;
+import tr.kontas.splitr.consumer.bus.BusHandler;
+import tr.kontas.splitr.consumer.store.IdempotencyStore;
 import tr.kontas.splitr.dto.base.BaseRequest;
 import tr.kontas.splitr.dto.base.BaseResponse;
 

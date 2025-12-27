@@ -1,4 +1,4 @@
-package tr.kontas.splitr.consumer;
+package tr.kontas.splitr.consumer.bus;
 
 
 /**

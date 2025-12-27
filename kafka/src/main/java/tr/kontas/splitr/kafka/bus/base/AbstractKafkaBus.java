@@ -1,8 +1,8 @@
-package tr.kontas.splitr.kafka.bus;
+package tr.kontas.splitr.kafka.bus.base;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.kafka.core.KafkaTemplate;
-import tr.kontas.splitr.bus.SyncRegistry;
+import tr.kontas.splitr.bus.registry.SyncRegistry;
 import tr.kontas.splitr.dto.base.BaseResponse;
 
 import java.util.UUID;

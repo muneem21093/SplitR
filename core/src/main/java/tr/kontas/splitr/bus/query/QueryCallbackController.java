@@ -1,6 +1,7 @@
-package tr.kontas.splitr.bus;
+package tr.kontas.splitr.bus.query;
 
 import org.springframework.web.bind.annotation.*;
+import tr.kontas.splitr.bus.registry.SyncRegistry;
 import tr.kontas.splitr.dto.QueryResponse;
 
 @RestController

@@ -1,8 +1,10 @@
-package tr.kontas.splitr.consumer;
+package tr.kontas.splitr.consumer.dispatcher;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import tr.kontas.splitr.consumer.bus.CommandHandler;
+import tr.kontas.splitr.consumer.store.IdempotencyStore;
 import tr.kontas.splitr.dto.CommandRequest;
 import tr.kontas.splitr.dto.CommandResponse;
 

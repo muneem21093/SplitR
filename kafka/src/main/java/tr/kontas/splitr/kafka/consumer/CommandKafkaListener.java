@@ -3,7 +3,7 @@ package tr.kontas.splitr.kafka.consumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
-import tr.kontas.splitr.consumer.CommandDispatcher;
+import tr.kontas.splitr.consumer.dispatcher.CommandDispatcher;
 import tr.kontas.splitr.dto.CommandRequest;
 
 @RequiredArgsConstructor

@@ -1,9 +1,7 @@
 package tr.kontas.serviceb;
 
 import org.springframework.stereotype.Component;
-import tr.kontas.splitr.consumer.CommandHandler;
-import tr.kontas.splitr.consumer.QueryHandler;
-import tr.kontas.splitr.test.CreateOrderCommand;
+import tr.kontas.splitr.consumer.bus.QueryHandler;
 import tr.kontas.splitr.test.OrderQuery;
 
 @Component

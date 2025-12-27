@@ -2,9 +2,10 @@ package tr.kontas.splitr.kafka.bus;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.kafka.core.KafkaTemplate;
-import tr.kontas.splitr.bus.QueryBus;
-import tr.kontas.splitr.bus.SyncRegistry;
+import tr.kontas.splitr.bus.query.QueryBus;
+import tr.kontas.splitr.bus.registry.SyncRegistry;
 import tr.kontas.splitr.dto.QueryRequest;
+import tr.kontas.splitr.kafka.bus.base.AbstractKafkaBus;
 
 import java.util.concurrent.CompletableFuture;
 

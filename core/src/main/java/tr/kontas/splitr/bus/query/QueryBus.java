@@ -1,6 +1,4 @@
-package tr.kontas.splitr.bus;
-
-import tr.kontas.splitr.dto.QueryResponse;
+package tr.kontas.splitr.bus.query;
 
 import java.util.concurrent.CompletableFuture;
 
