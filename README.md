@@ -24,6 +24,7 @@ Splitr bridges the gap between asynchronous messaging and synchronous execution 
 * Service-B sends the result via an HTTP POST to Service-A’s `callbackUrl`.
 * Service-A’s `QueryCallbackController` receives the result, matches the Correlation-ID, and unblocks the original thread.
 
+Note: Command workflow is same with query.
 
 ```mermaid
 sequenceDiagram
