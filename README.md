@@ -1,40 +1,85 @@
 # Splitr: Distributed Synchronous Query Bus
 
-**Splitr** is a lightweight, Spring Boot-based library designed to implement the **Request-Response pattern over Kafka**. It allows microservices to execute synchronous, typed queries across distributed boundaries while maintaining idempotency and high performance.
-
-## 🚀 Features
-
-* **Synchronous over Asynchronous:** Execute queries over Kafka topics while blocking the local thread for a response, mimicking a REST call over a message broker.
-* **Automatic Dispatching:** Just implement `QueryHandler<T>`, and the library routes the messages automatically.
-* **Built-in Idempotency:** Prevents redundant business logic execution using a configurable LRU (Least Recently Used) cache.
-* **Type Safety:** Fully supports polymorphic queries through Java Generics and Jackson JSON serialization.
-* **Configurable Timeout:** Global or per-query timeout management to prevent thread hanging.
+**Splitr** is a lightweight, high-performance Spring Boot library designed to implement the **Request-Response pattern over Kafka**. It allows microservices to execute synchronous, typed queries across distributed boundaries while maintaining idempotency and resilience.
 
 ---
 
-## 📦 Installation
+## 🔄 How It Works (Workflow)
 
-To use Splitr in your Spring Boot project, ensure the package `tr.kontas.splitr` is within your component scan path or use the Auto-Configuration.
+Splitr bridges the gap between asynchronous messaging and synchronous execution requirements.
 
-### 1. Publisher Configuration (Service A)
+1. **Request (Service-A):**
+* Generates a unique **Correlation-ID**.
+* Registers a promise in the internal `SyncRegistry` and blocks the executing thread.
+* Publishes a `QueryRequest` to Kafka, containing the payload and a `callbackUrl`.
 
-Enable the publisher side to send queries.
+
+2. **Processing (Service-B):**
+* `QueryKafkaListener` consumes the message.
+* The `IdempotencyStore` checks if this ID was processed before to prevent duplicate execution.
+* The `QueryDispatcher` routes the query to the specific `QueryHandler<T>`.
+
+
+3. **Callback & Completion:**
+* Service-B sends the result via an HTTP POST to Service-A’s `callbackUrl`.
+* Service-A’s `QueryCallbackController` receives the result, matches the Correlation-ID, and unblocks the original thread.
+
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant ServiceA as Service-A (Publisher)
+    participant Kafka as Kafka Topic
+    participant ServiceB as Service-B (Consumer)
+
+    User->>ServiceA: GET /orders/1
+    ServiceA->>ServiceA: Create Correlation-ID & SyncRegistry entry
+    ServiceA->>Kafka: Send QueryRequest (ID, callbackUrl, payload)
+    Note over ServiceA: Thread Blocked (Waiting...)
+    
+    Kafka->>ServiceB: Deliver Message
+    ServiceB->>ServiceB: Business Logic (QueryHandler)
+    ServiceB->>ServiceA: HTTP POST (callbackUrl) with Result
+    
+    ServiceA->>ServiceA: Match ID in SyncRegistry & Complete Future
+    Note over ServiceA: Thread Released
+    ServiceA->>User: 200 OK (Order Details)
+
+```
+
+---
+
+## 🚀 Features
+
+* **Synchronous over Kafka:** Blocking local threads for remote responses, mimicking REST over message brokers.
+* **Automatic Dispatching:** Just implement `QueryHandler<T>`, and Splitr handles the routing.
+* **Idempotency Engine:** Built-in LRU cache to prevent "at-least-once" delivery side effects.
+* **Type Safety:** Full support for polymorphic queries via Jackson Type Headers.
+* **Configurable Timeouts:** Global or per-request timeout management.
+
+---
+
+## 📦 Installation & Configuration
+
+### 1. Publisher Side (Service A)
+
+Enable the bus and specify where to receive results.
 
 ```yaml
 splitr:
   publisher:
     enabled: true
-  callback-url: http://localhost:8080/internal/query/callback
+  callback-url: http://service-a:8080/internal/query/callback
   bus:
     kafka:
       topic: tr.kontas.splitr.query.topic
-    default-timeout: 5000
+    default-timeout: 5000 # ms
 
 ```
 
-### 2. Consumer Configuration (Service B)
+### 2. Consumer Side (Service B)
 
-Enable the consumer side to process queries.
+Enable the processor and set idempotency limits.
 
 ```yaml
 splitr:
@@ -49,65 +94,44 @@ splitr:
 
 ## 🛠 Usage
 
-### Defining a Query
-
-Create a DTO that represents your query. It is recommended to extend a base class or implement a marker interface.
+### Step 1: Define Your Query
 
 ```java
 public record OrderQuery(String orderId) { }
 
 ```
 
-### Executing a Query (Publisher)
+### Step 2: Implement the Handler (Consumer)
 
-Inject the `QueryBus` and call `querySync`.
+```java
+@Component
+public class OrderQueryHandler implements QueryHandler<OrderQuery> {
+    @Override
+    public Class<OrderQuery> type() { return OrderQuery.class; }
+
+    @Override
+    public Object handle(OrderQuery q) {
+        return "ORDER-DETAILS-" + q.orderId();
+    }
+}
+
+```
+
+### Step 3: Execute the Query (Publisher)
 
 ```java
 @RestController
 @RequiredArgsConstructor
 public class OrderController {
-
     private final QueryBus queryBus;
 
-    @GetMapping("/orders/{id}")
-    public OrderResponse getOrder(@PathVariable String id) {
-        return queryBus.querySync(new OrderQuery(id), OrderResponse.class);
+    @GetMapping("/order/{id}")
+    public String get(@PathVariable String id) {
+        return queryBus.querySync(new OrderQuery(id), String.class);
     }
 }
 
 ```
-
-### Handling a Query (Consumer)
-
-Implement `QueryHandler` for the specific query type.
-
-```java
-@Component
-public class OrderQueryHandler implements QueryHandler<OrderQuery> {
-
-    @Override
-    public Class<OrderQuery> type() { 
-        return OrderQuery.class; 
-    }
-
-    @Override
-    public Object handle(OrderQuery q) {
-        // Business logic here
-        return new OrderResponse(q.orderId(), "COMPLETED");
-    }
-}
-
-```
-
----
-
-## 🧩 Architecture
-
-1. **Publisher** generates a unique `Correlation ID` and registers it in the `SyncRegistry`.
-2. **Publisher** sends a `QueryRequest` to Kafka and blocks.
-3. **Consumer** receives the message, checks the `IdempotencyStore`, and executes the `QueryHandler`.
-4. **Consumer** sends the result back to the Publisher's `callback-url` via HTTP POST.
-5. **Publisher's Controller** receives the callback, completes the `SyncRegistry`, and the blocked thread returns the data.
 
 ---
 
@@ -115,45 +139,43 @@ public class OrderQueryHandler implements QueryHandler<OrderQuery> {
 
 | Property | Default | Description |
 | --- | --- | --- |
-| `splitr.publisher.enabled` | `false` | Enables the QueryBus and Callback controller. |
-| `splitr.consumer.enabled` | `false` | Enables Kafka listeners for query processing. |
+| `splitr.publisher.enabled` | `false` | Enables QueryBus and Callback endpoint. |
+| `splitr.consumer.enabled` | `false` | Enables Kafka listeners and Dispatcher. |
 | `splitr.callback-url` | - | The HTTP endpoint for the publisher's callback. |
 | `splitr.bus.default-timeout` | `10` | Default wait time in ms for sync queries. |
-| `splitr.idempotency.max-size` | `100` | Size of the LRU cache for idempotent processing. |
+| `splitr.idempotency.max-size` | `100` | Size of the LRU cache for duplicate detection. |
 
 ---
-
-## 🤝 Contributing
-
-Developed and maintained by **BurakKontas**. Feel free to submit issues or pull requests to improve the bus performance or add new transport layers (like RabbitMQ).
 
 ## 📑 Roadmap & TODO's
 
 ### 🚀 High Priority (Core Engine)
 
-* [x] **Query Bus:** Distributed request-response pattern implementation.
-* [ ] **Command Bus:** Asynchronous command dispatching for state-changing operations.
-* [ ] **Event Bus:** Pub/Sub pattern for broadcast notifications across services.
-* [ ] **DLQ (Dead Letter Queue):** Automatic routing and recovery mechanism for failed messages.
-* [ ] **Saga Pattern Support:** Orchestration logic for long-running distributed transactions.
+* [x] **Query Bus:** Distributed request-response pattern.
+* [ ] **Command Bus:** Asynchronous command dispatching.
+* [ ] **Event Bus:** Pub/Sub broadcast support.
+* [ ] **DLQ (Dead Letter Queue):** Automatic failure routing to `.DLT` topics.
+* [ ] **Saga Support:** Orchestration for distributed transactions.
 
 ### 🛡 Resilience & Security
 
-* [ ] **Circuit Breaker:** Resilience4j integration to prevent cascading failures during callback timeouts.
-* [ ] **Payload Encryption:** Support for AES encryption of sensitive data within Kafka records.
-* [ ] **Rate Limiting:** Protect consumers from being overwhelmed by too many simultaneous queries.
-* [ ] **Validation:** JSR-303 (Hibernate Validator) support for incoming Query/Command DTOs.
+* [ ] **Circuit Breaker:** Resilience4j integration for callback failures.
+* [ ] **Payload Encryption:** AES encryption for Kafka records.
+* [ ] **Validation:** JSR-303 support for Query/Command DTOs.
 
-### 📊 Observability & Ops
+### 📊 Observability
 
-* [ ] **Distributed Tracing:** Micrometer/Zipkin integration for end-to-end correlation-ID tracking.
-* [ ] **Metrics:** Prometheus/Grafana dashboard support for latency and throughput monitoring.
-* [ ] **Logging Interceptors:** Pre/Post processing hooks for auditing every message on the bus.
-* [ ] **Admin UI:** A simple dashboard to monitor the `SyncRegistry` and `IdempotencyStore` status.
+* [ ] **Distributed Tracing:** Micrometer/Zipkin integration for Correlation-IDs.
+* [ ] **Metrics:** Prometheus/Grafana dashboard for latency monitoring.
 
 ### 💾 Storage & Transports
 
-* [x] **Kafka Support:** Default high-throughput message broker integration.
-* [ ] **Redis Idempotency:** Distributed LRU store implementation to support horizontal scaling.
-* [ ] **RabbitMQ Support:** Alternative transport layer for AMQP-based infrastructures.
-* [ ] **In-Memory Transport:** Zero-latency transport for local (monolithic) testing/deployment.
+* [x] **Kafka Support:** Default transport layer.
+* [ ] **Redis Idempotency:** Distributed store for horizontal scaling.
+* [ ] **RabbitMQ Support:** Alternative AMQP transport.
+
+---
+
+## 🤝 Contributing
+
+Developed and maintained by **BurakKontas**. Feel free to submit issues or pull requests to improve the bus performance or add new features.
