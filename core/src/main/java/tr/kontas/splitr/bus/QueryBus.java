@@ -60,5 +60,5 @@ public interface QueryBus {
      * @param responseType The class of the expected response for deserialization.
      * @return             A future holding the result of the query.
      */
-    <T> CompletableFuture<QueryResponse> publishAsync(Object query, Class<T> responseType);
+    <T> CompletableFuture<T> publishAsync(Object query, Class<T> responseType);
 }

@@ -1,2 +1,2 @@
-tr.kontas.splitr.bus.QueryBusAutoConfig
-tr.kontas.splitr.consumer.ConsumerAutoConfig
+tr.kontas.splitr.kafka.bus.KafkaBusAutoConfig
+tr.kontas.splitr.kafka.consumer.KafkaConsumerAutoConfig

@@ -137,13 +137,14 @@ public class OrderController {
 
 ## ⚙️ Configuration Properties
 
-| Property | Default | Description |
-| --- | --- | --- |
-| `splitr.publisher.enabled` | `false` | Enables QueryBus and Callback endpoint. |
-| `splitr.consumer.enabled` | `false` | Enables Kafka listeners and Dispatcher. |
-| `splitr.callback-url` | - | The HTTP endpoint for the publisher's callback. |
-| `splitr.bus.default-timeout` | `10` | Default wait time in ms for sync queries. |
-| `splitr.idempotency.max-size` | `100` | Size of the LRU cache for duplicate detection. |
+| Property                         | Default                          | Description                                          |
+|----------------------------------|----------------------------------|------------------------------------------------------|
+| `splitr.publisher.enabled`       | `false`                          | Enables QueryBus and Callback endpoint.              |
+| `splitr.consumer.enabled`        | `false`                          | Enables Kafka listeners and Dispatcher.              |
+| `splitr.callback-url`            | - (Required)                     | The HTTP endpoint for the publisher's callback.      |
+| `splitr.bus.default-timeout`     | `10000`                            | Default wait time in ms for sync query and commands. |
+| `splitr.bus.kafka.command.topic` | `tr.kontas.splitr.command.topic` | Kafka Command topic.                                 |
+| `splitr.bus.kafka.query.topic`   | `tr.kontas.splitr.query.topic`   | Kafka query topic.                                   |
 
 ---
 

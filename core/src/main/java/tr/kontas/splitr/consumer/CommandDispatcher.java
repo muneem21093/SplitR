@@ -3,26 +3,28 @@ package tr.kontas.splitr.consumer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import tr.kontas.splitr.dto.*;
 import org.springframework.web.client.RestTemplate;
+import tr.kontas.splitr.dto.CommandRequest;
+import tr.kontas.splitr.dto.CommandResponse;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class QueryDispatcher {
+public class CommandDispatcher {
 
-    private final Map<Class<?>, QueryHandler<?>> handlers;
+    private final Map<Class<?>, CommandHandler<?>> handlers;
     private final IdempotencyStore store;
     private final ObjectMapper mapper;
     private final RestTemplate rest = new RestTemplate();
 
-    public QueryDispatcher(List<QueryHandler<?>> list,
+    public CommandDispatcher(List<CommandHandler<?>> list,
                            IdempotencyStore store,
                            ObjectMapper mapper) {
         handlers = list.stream().collect(
-                java.util.stream.Collectors.toMap(QueryHandler::type, h->h)
+                java.util.stream.Collectors.toMap(CommandHandler::type, h->h)
         );
 
         String joinedNames = handlers.keySet().stream()
@@ -34,7 +36,7 @@ public class QueryDispatcher {
         this.mapper = mapper;
     }
 
-    public void dispatch(QueryRequest r) throws Exception {
+    public void dispatch(CommandRequest r) throws Exception {
         log.atInfo().log("Working on: " + r.getId());
         long deadline = r.getSentAtEpochMs() + r.getTimeoutMs();
         long remaining = deadline - System.currentTimeMillis();
@@ -47,14 +49,14 @@ public class QueryDispatcher {
         }
 
         Class<?> type = Class.forName(r.getType());
-        QueryHandler handler = handlers.get(type);
+        CommandHandler handler = handlers.get(type);
         Object query = mapper.readValue(r.getPayload(), type);
 
         ExecutorService ex = Executors.newSingleThreadExecutor();
         Future<?> f = ex.submit(() -> {
             try {
                 Object result = handler.handle(query);
-                QueryResponse resp = new QueryResponse(r.getId(), mapper.writeValueAsString(result));
+                CommandResponse resp = new CommandResponse(r.getId(), mapper.writeValueAsString(result));
                 store.put(r.getId(), resp);
                 rest.postForEntity(r.getCallbackUrl(), resp, Void.class);
             } catch (RuntimeException | JsonProcessingException | InterruptedException e) {

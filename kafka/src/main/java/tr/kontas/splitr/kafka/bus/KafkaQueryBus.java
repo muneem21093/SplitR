@@ -32,6 +32,10 @@ public class KafkaQueryBus implements QueryBus {
         this.mapper = mapper;
         this.callbackUrl = callbackUrl;
         this.defaultTimeout = defaultTimeout;
+
+        if(callbackUrl.isBlank()){
+            throw new RuntimeException("splitr.callback-url is blank");
+        }
     }
 
     public <T> T publishSync(Object query, Class<T> type, long timeoutMs) {
@@ -39,7 +43,7 @@ public class KafkaQueryBus implements QueryBus {
             String id = UUID.randomUUID().toString();
             long now = System.currentTimeMillis();
 
-            var future = registry.register(id);
+            var future = registry.registerQuery(id);
 
             kafka.send(this.queryTopic, id,
                     new QueryRequest(
@@ -68,12 +72,12 @@ public class KafkaQueryBus implements QueryBus {
     }
 
     @Override
-    public <T> CompletableFuture<QueryResponse> publishAsync(Object query, Class<T> responseType) {
+    public <T> CompletableFuture<T> publishAsync(Object query, Class<T> responseType) {
         try {
             String id = UUID.randomUUID().toString();
             long now = System.currentTimeMillis();
 
-            var future = registry.register(id);
+            var future = registry.registerQuery(id);
 
             kafka.send(this.queryTopic, id,
                 new QueryRequest(
@@ -87,9 +91,18 @@ public class KafkaQueryBus implements QueryBus {
                 )
             );
 
-            return future;
+            return future.thenApply(response -> {
+                try {
+                    return mapper.readValue(response.getResult(), responseType);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
         } catch (Exception e) {
-            throw new RuntimeException("Query timeout", e);
+            CompletableFuture<T> failed = new CompletableFuture<>();
+            failed.completeExceptionally(e);
+            return failed;
         }
     }
 }

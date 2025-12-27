@@ -12,6 +12,6 @@ public class QueryCallbackController {
 
     @PostMapping("/callback")
     public void callback(@RequestBody QueryResponse r) {
-        registry.complete(r);
+        registry.completeQuery(r);
     }
 }

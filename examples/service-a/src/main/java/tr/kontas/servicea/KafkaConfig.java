@@ -11,6 +11,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
+import tr.kontas.splitr.dto.CommandRequest;
 import tr.kontas.splitr.dto.QueryRequest;
 
 import java.util.HashMap;
@@ -26,7 +27,7 @@ public class KafkaConfig {
     private String consumer;
 
     @Bean
-    public ProducerFactory<String, QueryRequest> producerFactory() {
+    public <T> ProducerFactory<String, T> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -34,8 +35,13 @@ public class KafkaConfig {
         return new DefaultKafkaProducerFactory<>(configProps);
     }
 
-    @Bean
+    @Bean("queryKafka")
     public KafkaTemplate<String, QueryRequest> kafkaTemplate() {
+        return new KafkaTemplate<>(producerFactory());
+    }
+
+    @Bean("commandKafka")
+    public KafkaTemplate<String, CommandRequest> kafkaCommandTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 
