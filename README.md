@@ -216,46 +216,6 @@ splitr:
 
 ---
 
-## 🛠 Usage
-
-### Step 1: Define Your Query
-
-```java
-public record OrderQuery(String orderId) { }
-
-```
-
-### Step 2: Implement the Handler (Consumer)
-
-```java
-@Component
-public class OrderQueryHandler implements BaseQueryHandler<OrderQuery> {
-    @Override
-    public Object handle(OrderQuery q) {
-        return "ORDER-DETAILS-" + q.orderId();
-    }
-}
-
-```
-
-### Step 3: Execute the Query (Publisher)
-
-```java
-@RestController
-@RequiredArgsConstructor
-public class OrderController {
-    private final QueryBus queryBus;
-
-    @GetMapping("/order/{id}")
-    public String get(@PathVariable String id) {
-        return queryBus.publishSync(new OrderQuery(id), String.class);
-    }
-}
-
-```
-
----
-
 ## ⚙️ Configuration Properties
 
 | Property                         | Default                          | Description                                          |
