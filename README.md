@@ -140,6 +140,39 @@ public class InventoryHandler extends BaseDomainEventHandler<OrderDomainEvent> {
 
 ---
 
+## How To Send Message From Outside
+
+##### Kafka messages sent by SplitR are structured as below.
+
+### Key (Idempotency aware)
+```json
+a45db290-b9d4-4cb4-a5cd-ae19bd352b1b
+```
+
+### Value
+```json
+{
+	"id": "a45db290-b9d4-4cb4-a5cd-ae19bd352b1b",
+	"type": "tr.kontas.splitr.test.CreateOrderCommand",
+	"payload": "{\"productName\":\"Laptop\",\"quantity\":1}",
+	"callbackUrl": "http://localhost:8083/internal/query/callback",
+	"sentAtEpochMs": 1766863517525,
+	"timeoutMs": 3000,
+	"sync": true
+}
+```
+
+### Headers
+```json
+{
+	"__TypeId__": "tr.kontas.splitr.dto.CommandRequest"
+}
+```
+
+##### Produce a message like this and SplitR will dispatch and send post request to callback.
+
+---
+
 ## 🚀 Features
 
 * **Synchronous over Kafka:** Blocking local threads for remote responses, mimicking REST over message brokers.
