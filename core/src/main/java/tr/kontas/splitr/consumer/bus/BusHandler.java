@@ -36,7 +36,6 @@ public interface BusHandler<T> {
      *
      * @param payload The bus payload object containing request parameters.
      * @return The result of the execution (Response DTO or raw result).
-     * @throws InterruptedException If the processing thread is interrupted during execution.
      */
-    Object handle(T payload) throws InterruptedException;
+    Object handle(T payload);
 }

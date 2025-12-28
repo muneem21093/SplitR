@@ -29,7 +29,7 @@ public interface CommandBus {
      * @return             The processed result of the command.
      * @throws RuntimeException if the command fails, serialization fails, or the timeout is exceeded.
      */
-    <T> T publishSync(Object command, Class<T> responseType, long timeoutMs);
+    <T> T publishSync(Command command, Class<T> responseType, long timeoutMs);
 
     /**
      * Publishes a command and waits for a typed response using the default system timeout.
@@ -44,7 +44,7 @@ public interface CommandBus {
      * @return             The processed result of the command.
      * @throws RuntimeException if the command fails or the default timeout is exceeded.
      */
-    <T> T publishSync(Object command, Class<T> responseType);
+    <T> T publishSync(Command command, Class<T> responseType);
 
     /**
      * Publishes a command without blocking and returns a future for the typed response
@@ -58,14 +58,14 @@ public interface CommandBus {
      * @param responseType The class of the expected response for deserialization.
      * @return             A future holding the result of the command.
      */
-    <T> CompletableFuture<T> publishAsync(Object command, Class<T> responseType);
+    <T> CompletableFuture<T> publishAsync(Command command, Class<T> responseType);
 
     /**
      * Publishes a command without expecting any response (fire-and-forget).
      *
      * @param command The command payload object to be dispatched.
      */
-    void publish(Object command);
+    void publish(Command command);
 
     /**
      * Publishes a command without expecting any response (fire-and-forget).
@@ -78,5 +78,5 @@ public interface CommandBus {
      * @param command The command payload object to be dispatched.
      * @param timeoutMs The maximum time to wait for the response in milliseconds.
      */
-    void publish(Object command, long timeoutMs);
+    void publish(Command command, long timeoutMs);
 }

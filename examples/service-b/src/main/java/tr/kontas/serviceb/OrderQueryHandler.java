@@ -1,13 +1,11 @@
 package tr.kontas.serviceb;
 
 import org.springframework.stereotype.Component;
-import tr.kontas.splitr.consumer.bus.QueryHandler;
+import tr.kontas.splitr.bus.base.BaseQueryHandler;
 import tr.kontas.splitr.test.OrderQuery;
 
 @Component
-public class OrderQueryHandler implements QueryHandler<OrderQuery> {
-    @Override public Class<OrderQuery> type() { return OrderQuery.class; }
-
+public class OrderQueryHandler extends BaseQueryHandler<OrderQuery> {
     @Override
     public Object handle(OrderQuery q) {
         return "DATA-FOR-" + q.orderId();

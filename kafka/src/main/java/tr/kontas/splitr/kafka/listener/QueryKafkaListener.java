@@ -1,4 +1,4 @@
-package tr.kontas.splitr.kafka.consumer;
+package tr.kontas.splitr.kafka.listener;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,11 +13,11 @@ public class QueryKafkaListener {
     private final QueryDispatcher dispatcher;
 
     @KafkaListener(
-            topics = "${splitr.bus.kafka.topic:tr.kontas.splitr.query.topic}",
-            groupId = "${splitr.bus.kafka.consumer:tr.kontas.splitr.query.consumer}"
+            topics = "${splitr.bus.kafka.query.topic:tr.kontas.splitr.query.topic}",
+            groupId = "${splitr.bus.kafka.query.consumer:tr.kontas.splitr.query.consumer}"
     )
     public void listen(QueryRequest r) throws Exception {
-        log.atInfo().log("Dispatching: " + r.getId());
+        log.atInfo().log("Dispatching query: " + r.getId());
         dispatcher.dispatch(r);
     }
 }

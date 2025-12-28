@@ -45,7 +45,7 @@ public abstract class AbstractKafkaBus<TRequest> {
     protected <T> T executeSync(Object payload, Class<T> responseType, long timeoutMs) {
         try {
             String id = UUID.randomUUID().toString();
-            var future = registry.registerQuery(id);
+            var future = registry.register(id);
 
             sendInternal(id, payload, true, timeoutMs);
 
@@ -56,11 +56,21 @@ public abstract class AbstractKafkaBus<TRequest> {
         }
     }
 
-    protected <T> CompletableFuture<T> executeAsync(Object payload, Class<T> responseType, boolean isCommand) {
+    // Event bus için
+    protected void execute(Object payload) {
+        try {
+            String id = UUID.randomUUID().toString();
+            sendInternal(id, payload, false, Long.MAX_VALUE);
+        } catch (Exception e) {
+            throw new RuntimeException("Async execution failed", e);
+        }
+    }
+
+    protected <T> CompletableFuture<T> executeAsync(Object payload, Class<T> responseType) {
         try {
             String id = UUID.randomUUID().toString();
             // Registry ayrımı: Command ise registerCommand, Query ise registerQuery
-            var future = isCommand ? registry.registerCommand(id) : registry.registerQuery(id);
+            var future = registry.register(id);
 
             sendInternal(id, payload, false, Long.MAX_VALUE);
 

@@ -1,32 +1,21 @@
 package tr.kontas.splitr.bus.registry;
 
-import tr.kontas.splitr.dto.CommandResponse;
-import tr.kontas.splitr.dto.QueryResponse;
+import tr.kontas.splitr.dto.base.BaseResponse;
 
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SyncRegistry {
-    private final ConcurrentHashMap<String, CompletableFuture<QueryResponse>> queryMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, CompletableFuture<BaseResponse>> map = new ConcurrentHashMap<>();
 
-    public CompletableFuture<QueryResponse> registerQuery(String id) {
-        var f = new CompletableFuture<QueryResponse>();
-        queryMap.put(id, f);
+    public CompletableFuture<BaseResponse> register(String id) {
+        var f = new CompletableFuture<BaseResponse>();
+        map.put(id, f);
         return f;
     }
-    public void completeQuery(QueryResponse r) {
-        var f = queryMap.remove(r.getId());
-        if (f != null) f.complete(r);
-    }
 
-    private final ConcurrentHashMap<String, CompletableFuture<CommandResponse>> commandMap = new ConcurrentHashMap<>();
-
-    public CompletableFuture<CommandResponse> registerCommand(String id) {
-        var f = new CompletableFuture<CommandResponse>();
-        commandMap.put(id, f);
-        return f;
-    }
-    public void completeCommand(CommandResponse r) {
-        var f = commandMap.remove(r.getId());
+    public void complete(BaseResponse r) {
+        var f = map.remove(r.getId());
         if (f != null) f.complete(r);
     }
 }

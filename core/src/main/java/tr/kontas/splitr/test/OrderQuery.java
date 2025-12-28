@@ -1,3 +1,6 @@
 package tr.kontas.splitr.test;
 
-public record OrderQuery(String orderId) {}
+import tr.kontas.splitr.bus.query.Query;
+
+public record OrderQuery(String orderId) implements Query {
+}

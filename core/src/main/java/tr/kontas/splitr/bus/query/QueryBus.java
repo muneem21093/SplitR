@@ -29,7 +29,7 @@ public interface QueryBus {
      * @return             The processed result of the query.
      * @throws RuntimeException if the query fails, serialization fails, or the timeout is exceeded.
      */
-    <T> T publishSync(Object query, Class<T> responseType, long timeoutMs);
+    <T> T publishSync(Query query, Class<T> responseType, long timeoutMs);
 
     /**
      * Publishes a query and waits for a typed response using the default system timeout.
@@ -44,7 +44,7 @@ public interface QueryBus {
      * @return             The processed result of the query.
      * @throws RuntimeException if the query fails or the default timeout is exceeded.
      */
-    <T> T publishSync(Object query, Class<T> responseType);
+    <T> T publishSync(Query query, Class<T> responseType);
 
     /**
      * Publishes a query without blocking and returns a future for the typed response
@@ -58,5 +58,5 @@ public interface QueryBus {
      * @param responseType The class of the expected response for deserialization.
      * @return             A future holding the result of the query.
      */
-    <T> CompletableFuture<T> publishAsync(Object query, Class<T> responseType);
+    <T> CompletableFuture<T> publishAsync(Query query, Class<T> responseType);
 }

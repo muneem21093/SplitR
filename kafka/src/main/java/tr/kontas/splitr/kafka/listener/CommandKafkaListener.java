@@ -1,4 +1,4 @@
-package tr.kontas.splitr.kafka.consumer;
+package tr.kontas.splitr.kafka.listener;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ public class CommandKafkaListener {
             groupId = "${splitr.bus.kafka.command.consumer:tr.kontas.splitr.command.consumer}"
     )
     public void listen(CommandRequest r) throws Exception {
-        log.atInfo().log("Dispatching: " + r.getId());
+        log.atInfo().log("Dispatching command: " + r.getId());
         dispatcher.dispatch(r);
     }
 }

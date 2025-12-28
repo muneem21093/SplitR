@@ -2,19 +2,23 @@ package tr.kontas.splitr.kafka.autoconfigure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.*;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import tr.kontas.splitr.consumer.bus.CommandHandler;
-import tr.kontas.splitr.consumer.dispatcher.CommandDispatcher;
-import tr.kontas.splitr.consumer.dispatcher.QueryDispatcher;
+import tr.kontas.splitr.consumer.bus.EventHandler;
 import tr.kontas.splitr.consumer.bus.QueryHandler;
+import tr.kontas.splitr.consumer.dispatcher.CommandDispatcher;
+import tr.kontas.splitr.consumer.dispatcher.EventDispatcher;
+import tr.kontas.splitr.consumer.dispatcher.QueryDispatcher;
 import tr.kontas.splitr.consumer.store.IdempotencyStore;
 import tr.kontas.splitr.consumer.store.LruStore;
-import tr.kontas.splitr.kafka.consumer.CommandKafkaListener;
-import tr.kontas.splitr.kafka.consumer.QueryKafkaListener;
+import tr.kontas.splitr.kafka.listener.CommandKafkaListener;
+import tr.kontas.splitr.kafka.listener.EventKafkaListener;
+import tr.kontas.splitr.kafka.listener.QueryKafkaListener;
 
 import java.util.List;
 
@@ -58,5 +62,20 @@ public class KafkaConsumerAutoConfig {
             ObjectMapper mapper) {
         log.atInfo().log("Initializing CommandDispatcher");
         return new CommandDispatcher(handlers, store, mapper);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public EventKafkaListener eventKafkaListener(EventDispatcher dispatcher) {
+        return new EventKafkaListener(dispatcher);
+    }
+
+    @Bean
+    public EventDispatcher eventDispatcher(
+            List<EventHandler<?>> handlers,
+            IdempotencyStore store,
+            ObjectMapper mapper) {
+        log.atInfo().log("Initializing EventDispatcher");
+        return new EventDispatcher(handlers, store, mapper);
     }
 }

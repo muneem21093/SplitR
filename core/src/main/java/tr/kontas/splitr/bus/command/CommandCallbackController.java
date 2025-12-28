@@ -16,6 +16,6 @@ public class CommandCallbackController {
 
     @PostMapping("/callback")
     public void callback(@RequestBody CommandResponse r) {
-        registry.completeCommand(r);
+        registry.complete(r);
     }
 }

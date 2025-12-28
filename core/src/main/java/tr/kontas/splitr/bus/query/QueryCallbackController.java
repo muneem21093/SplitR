@@ -1,6 +1,9 @@
 package tr.kontas.splitr.bus.query;
 
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import tr.kontas.splitr.bus.registry.SyncRegistry;
 import tr.kontas.splitr.dto.QueryResponse;
 
@@ -13,6 +16,6 @@ public class QueryCallbackController {
 
     @PostMapping("/callback")
     public void callback(@RequestBody QueryResponse r) {
-        registry.completeQuery(r);
+        registry.complete(r);
     }
 }

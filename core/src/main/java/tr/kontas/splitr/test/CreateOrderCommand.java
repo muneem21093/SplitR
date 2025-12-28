@@ -1,3 +1,6 @@
 package tr.kontas.splitr.test;
 
-public record CreateOrderCommand(String productName, int quantity) {}
+import tr.kontas.splitr.bus.command.Command;
+
+public record CreateOrderCommand(String productName, int quantity) implements Command {
+}

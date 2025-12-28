@@ -2,6 +2,7 @@ package tr.kontas.splitr.kafka.bus;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.kafka.core.KafkaTemplate;
+import tr.kontas.splitr.bus.command.Command;
 import tr.kontas.splitr.bus.command.CommandBus;
 import tr.kontas.splitr.bus.registry.SyncRegistry;
 import tr.kontas.splitr.dto.CommandRequest;
@@ -24,27 +25,27 @@ public class KafkaCommandBus extends AbstractKafkaBus<CommandRequest> implements
     }
 
     @Override
-    public <T> T publishSync(Object command, Class<T> responseType, long timeoutMs) {
+    public <T> T publishSync(Command command, Class<T> responseType, long timeoutMs) {
         return executeSync(command, responseType, timeoutMs);
     }
 
     @Override
-    public <T> T publishSync(Object command, Class<T> responseType) {
+    public <T> T publishSync(Command command, Class<T> responseType) {
         return publishSync(command, responseType, defaultTimeout);
     }
 
     @Override
-    public <T> CompletableFuture<T> publishAsync(Object command, Class<T> responseType) {
-        return executeAsync(command, responseType, true);
+    public <T> CompletableFuture<T> publishAsync(Command command, Class<T> responseType) {
+        return executeAsync(command, responseType);
     }
 
     @Override
-    public void publish(Object command) {
+    public void publish(Command command) {
         publish(command, Long.MAX_VALUE);
     }
 
     @Override
-    public void publish(Object command, long timeoutMs) {
+    public void publish(Command command, long timeoutMs) {
         try {
             sendInternal(UUID.randomUUID().toString(), command, false, timeoutMs);
         } catch (Exception e) {

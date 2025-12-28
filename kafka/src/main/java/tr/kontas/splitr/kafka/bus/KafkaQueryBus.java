@@ -2,6 +2,7 @@ package tr.kontas.splitr.kafka.bus;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.kafka.core.KafkaTemplate;
+import tr.kontas.splitr.bus.query.Query;
 import tr.kontas.splitr.bus.query.QueryBus;
 import tr.kontas.splitr.bus.registry.SyncRegistry;
 import tr.kontas.splitr.dto.QueryRequest;
@@ -23,17 +24,17 @@ public class KafkaQueryBus extends AbstractKafkaBus<QueryRequest> implements Que
     }
 
     @Override
-    public <T> T publishSync(Object query, Class<T> responseType, long timeoutMs) {
+    public <T> T publishSync(Query query, Class<T> responseType, long timeoutMs) {
         return executeSync(query, responseType, timeoutMs);
     }
 
     @Override
-    public <T> T publishSync(Object query, Class<T> responseType) {
+    public <T> T publishSync(Query query, Class<T> responseType) {
         return publishSync(query, responseType, defaultTimeout);
     }
 
     @Override
-    public <T> CompletableFuture<T> publishAsync(Object query, Class<T> responseType) {
-        return executeAsync(query, responseType, false);
+    public <T> CompletableFuture<T> publishAsync(Query query, Class<T> responseType) {
+        return executeAsync(query, responseType);
     }
 }
