@@ -1,4 +1,4 @@
-package tr.kontas.splitr.consumer.domainevent;
+package tr.kontas.splitr.consumer.autoconfigure;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -9,12 +9,12 @@ import tr.kontas.splitr.bus.domainevent.DomainEventBus;
 import tr.kontas.splitr.bus.registry.SyncRegistry;
 import tr.kontas.splitr.consumer.bus.DomainEventHandler;
 import tr.kontas.splitr.consumer.dispatcher.DomainEventDispatcher;
+import tr.kontas.splitr.consumer.domainevent.InMemoryEventBus;
 import tr.kontas.splitr.consumer.store.LruStore;
 
 import java.util.List;
 
 @Configuration
-@ConditionalOnProperty(name = "splitr.domainevents.enabled", havingValue = "true")
 public class DomainEventAutoConfigure {
 
     @Bean

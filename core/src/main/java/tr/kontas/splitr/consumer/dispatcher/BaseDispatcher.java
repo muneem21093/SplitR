@@ -103,7 +103,8 @@ public abstract class BaseDispatcher<TReq extends BaseRequest, TResp extends Bas
         }
 
         try {
-            rest.postForEntity(finalUrl, resp, Void.class);
+            if(!finalUrl.isBlank())
+                rest.postForEntity(finalUrl, resp, Void.class);
         } catch (Exception e) {
             log.error("Failed to trigger webhook for ID: {}", r.getId(), e);
         }

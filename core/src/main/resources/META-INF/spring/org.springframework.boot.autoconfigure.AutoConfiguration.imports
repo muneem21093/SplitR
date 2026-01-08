@@ -1,1 +1,2 @@
-tr.kontas.splitr.consumer.domainevent.DomainEventAutoConfigure
+tr.kontas.splitr.consumer.autoconfigure.DomainEventAutoConfigure
+tr.kontas.splitr.consumer.autoconfigure.InMemoryBusAutoConfigure

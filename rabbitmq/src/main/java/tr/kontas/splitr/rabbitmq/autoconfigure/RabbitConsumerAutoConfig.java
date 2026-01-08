@@ -7,11 +7,13 @@ import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFacto
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import tr.kontas.splitr.consumer.autoconfigure.InMemoryBusAutoConfigure;
 import tr.kontas.splitr.consumer.bus.CommandHandler;
 import tr.kontas.splitr.consumer.bus.EventHandler;
 import tr.kontas.splitr.consumer.bus.QueryHandler;
@@ -26,6 +28,7 @@ import tr.kontas.splitr.rabbitmq.listener.QueryRabbitListener;
 
 import java.util.List;
 
+@AutoConfigureAfter(InMemoryBusAutoConfigure.class)
 @Configuration
 @EnableRabbit
 @Slf4j
@@ -44,7 +47,8 @@ public class RabbitConsumerAutoConfig {
         return new QueryRabbitListener(dispatcher);
     }
 
-    @Bean
+    @Bean(name = "rabbitQueryDispatcher")
+    @Primary
     public QueryDispatcher queryDispatcher(
             List<QueryHandler<?>> handlers,
             IdempotencyStore store,
@@ -59,7 +63,8 @@ public class RabbitConsumerAutoConfig {
         return new CommandRabbitListener(dispatcher);
     }
 
-    @Bean
+    @Bean("rabbitDispatcher")
+    @Primary
     public CommandDispatcher commandDispatcher(
             List<CommandHandler<?>> handlers,
             IdempotencyStore store,

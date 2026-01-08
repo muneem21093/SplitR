@@ -5,6 +5,7 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -16,10 +17,12 @@ import tr.kontas.splitr.bus.event.EventBus;
 import tr.kontas.splitr.bus.query.QueryBus;
 import tr.kontas.splitr.bus.query.QueryCallbackController;
 import tr.kontas.splitr.bus.registry.SyncRegistry;
+import tr.kontas.splitr.consumer.autoconfigure.InMemoryBusAutoConfigure;
 import tr.kontas.splitr.rabbitmq.bus.RabbitCommandBus;
 import tr.kontas.splitr.rabbitmq.bus.RabbitEventBus;
 import tr.kontas.splitr.rabbitmq.bus.RabbitQueryBus;
 
+@AutoConfigureAfter(InMemoryBusAutoConfigure.class)
 @Configuration
 @ConditionalOnProperty(name = "splitr.publisher.enabled", havingValue = "true")
 public class RabbitBusAutoConfig {
@@ -50,7 +53,8 @@ public class RabbitBusAutoConfig {
         return new QueryCallbackController(registry);
     }
 
-    @Bean
+    @Bean("rabbitQueryBus")
+    @Primary
     public QueryBus queryBus(
             RabbitTemplate rabbit,
             SyncRegistry registry,
@@ -68,7 +72,8 @@ public class RabbitBusAutoConfig {
         return new CommandCallbackController(registry);
     }
 
-    @Bean
+    @Bean("rabbitCommandBus")
+    @Primary
     public CommandBus commandBus(
             RabbitTemplate rabbit,
             SyncRegistry registry,
@@ -80,7 +85,8 @@ public class RabbitBusAutoConfig {
         return new RabbitCommandBus(queue, rabbit, registry, mapper, url, defaultTimeout);
     }
 
-    @Bean
+    @Bean("rabbitEventBus")
+    @Primary
     @ConditionalOnMissingBean
     public EventBus eventBus(
             RabbitTemplate rabbit,
