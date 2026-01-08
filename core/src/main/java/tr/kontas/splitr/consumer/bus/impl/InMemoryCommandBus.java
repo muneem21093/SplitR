@@ -36,7 +36,7 @@ public class InMemoryCommandBus implements CommandBus {
             dispatcher.dispatch(req);
             var resp = store.get(req.getId());
             if (resp == null) return null;
-            return new com.fasterxml.jackson.databind.ObjectMapper().readValue(resp.getResult(), responseType);
+            return mapper.readValue(resp.getResult(), responseType);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
